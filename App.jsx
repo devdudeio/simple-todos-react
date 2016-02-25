@@ -21,14 +21,15 @@ App = React.createClass({
 
         return {
             tasks: Tasks.find(query, {sort: {createdAt: -1}}).fetch(),
-            incompleteCount: Tasks.find({checked: {$ne: true}}).count()
+            incompleteCount: Tasks.find({checked: {$ne: true}}).count(),
+            currentUser: Meteor.user()
         };
     },
 
     renderTasks() {
         // Get tasks from this.data.tasks
         return this.data.tasks.map((task) => {
-            return <Task key={task._id} task={task} />;
+            return <Task key={task._id} task={task}/>;
         });
     },
 
@@ -40,7 +41,9 @@ App = React.createClass({
 
         Tasks.insert({
             text: text,
-            createdAt: new Date() // current time
+            createdAt: new Date(),            // current time
+            owner: Meteor.userId(),           // _id of logged in user
+            username: Meteor.user().username  // username of logged in user
         });
 
         // Clear form
@@ -48,7 +51,7 @@ App = React.createClass({
     },
     toggleHideCompleted() {
         this.setState({
-            hideCompleted: ! this.state.hideCompleted
+            hideCompleted: !this.state.hideCompleted
         });
     },
 
@@ -62,15 +65,20 @@ App = React.createClass({
                             type="checkbox"
                             readOnly={true}
                             checked={this.state.hideCompleted}
-                            onClick={this.toggleHideCompleted} />
+                            onClick={this.toggleHideCompleted}/>
                         Hide Completed Tasks
                     </label>
+
+                    <AccountsUIWrapper />
+
+                    { this.data.currentUser ?
                     <form className="new-task" onSubmit={this.handleSubmit} >
                         <input
                             type="text"
                             ref="textInput"
                             placeholder="Type to add new tasks" />
-                    </form>
+                    </form> : ''
+                        }
                 </header>
 
                 <ul>
