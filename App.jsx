@@ -29,7 +29,13 @@ App = React.createClass({
     renderTasks() {
         // Get tasks from this.data.tasks
         return this.data.tasks.map((task) => {
-            return <Task key={task._id} task={task}/>;
+            const currentUserId = this.data.currentUser && this.data.currentUser._id;
+            const showPrivateButton = task.owner === currentUserId;
+
+            return <Task
+                key={task._id}
+                task={task}
+                showPrivateButton={showPrivateButton}/>;
         });
     },
 
@@ -67,11 +73,11 @@ App = React.createClass({
                     <AccountsUIWrapper />
 
                     { this.data.currentUser ?
-                    <form className="new-task" onSubmit={this.handleSubmit} >
+                    <form className="new-task" onSubmit={this.handleSubmit}>
                         <input
                             type="text"
                             ref="textInput"
-                            placeholder="Type to add new tasks" />
+                            placeholder="Type to add new tasks"/>
                     </form> : ''
                         }
                 </header>
